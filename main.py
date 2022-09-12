@@ -1,21 +1,19 @@
 # Pack 1 license-plate-dataset: https://github.com/RobertLucian/license-plate-dataset
 # Pack 2 Car_License_Plate_Detection: https://www.kaggle.com/datasets/andrewmvd/car-plate-detection
-# Pack 3 Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano:  https://github.com/winter2897/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
+# Pack 3 Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano:  
+#                               https://github.com/winter2897/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
 
-from inspect import getmembers
 import os
-import numpy as np
-from PIL import Image
-
 import xml.etree.ElementTree as ET
 
-
-
-# Pack1
+import numpy as np
+from PIL import Image
 
 pack1_path ="data/license-plate-dataset/"
 pack2_path ="data/Car_License_Plate_Detection/"
 pack3_path ="data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/"
+
+# Pack1
 
 def pack1_train_get_data(path: str)->list:
     """
@@ -32,6 +30,8 @@ def pack1_train_get_data(path: str)->list:
     data.append(float(file.find("object").find("bndbox").find("ymax").text))
 
     return data
+
+# Pack2
 
 def pack1_valid_get_data(path: str)->list:
     """
@@ -64,7 +64,7 @@ def pack2_train_get_data(path: str)->list:
     data.append(int(file.find("object").find("bndbox").find("ymax").text))
     return data
 
-
+# Pack3
 
 def pack3_train_get_data(path: str)->list:
     """
