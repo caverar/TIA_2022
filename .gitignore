@@ -1,2 +1,4 @@
 /data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
 /data/Car_License_Plate_Detection
+/data/yolo_plate_dataset.zip
+/data/yolo_plate_ocr_dataset.zip

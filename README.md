@@ -15,4 +15,6 @@ Is not necessary to install anything
 ```sh
 cd data
 python3 gdrivedl.py https://drive.google.com/drive/folders/1iL811t_-eqnuNwVBGeeU-HG3k6Whd3U9
+unzip yolo_plate_dataset.zip
+unzip yolo_plate_ocr_dataset.zip
 ```
