@@ -4,6 +4,7 @@
 
 ```sh
 git clone git@github.com:caverar/TIA_2022.git
+cd TIA_2022
 git submodule init
 git submodule update
 ```
