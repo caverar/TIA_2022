@@ -23,8 +23,11 @@ mv yolo_plate_ocr_dataset.zip Real-time-Auto-License-Plate-Recognition-with-Jets
 cd Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
 unzip yolo_plate_dataset.zip
 unzip yolo_plate_ocr_dataset.zip
+rm yolo_plate_dataset.zip
+rm yolo_plate_ocr_dataset.zip
 cd ..
 mv archive.zip Car_License_Plate_Detection
 cd Car_License_Plate_Detection
 unzip archive.zip
+rm archive.zip
 ```
