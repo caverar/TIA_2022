@@ -9,7 +9,8 @@ git submodule init
 git submodule update
 ```
 
-## Download dataset 
+## Download dataset
+
 Download from google drive automatically using  [gdrivedl](https://github.com/matthuisman/gdrivedl) and [termcolor](https://pypi.org/project/termcolor/).
 Is not necessary to install anything
 
