@@ -9,25 +9,10 @@ git submodule init
 git submodule update
 ```
 
-## Download dataset from google drive using  [gdrivedl](https://github.com/matthuisman/gdrivedl)
-
+## Download dataset 
+Download from google drive automatically using  [gdrivedl](https://github.com/matthuisman/gdrivedl) and [termcolor](https://pypi.org/project/termcolor/).
 Is not necessary to install anything
 
 ```sh
-cd data
-mkdir Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
-mkdir Car_License_Plate_Detection
-python3 gdrivedl.py https://drive.google.com/drive/folders/1iL811t_-eqnuNwVBGeeU-HG3k6Whd3U9
-mv yolo_plate_dataset.zip Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
-mv yolo_plate_ocr_dataset.zip Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
-cd Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
-unzip yolo_plate_dataset.zip
-unzip yolo_plate_ocr_dataset.zip
-rm yolo_plate_dataset.zip
-rm yolo_plate_ocr_dataset.zip
-cd ..
-mv archive.zip Car_License_Plate_Detection
-cd Car_License_Plate_Detection
-unzip archive.zip
-rm archive.zip
+python3 datadl.py
 ```
