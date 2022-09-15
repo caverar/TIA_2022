@@ -1,4 +1,9 @@
-# TIA 2022 Plates
+# TIA 2022 ANPR
+
+* Camilo Andres Vera Ruiz
+* Cristian Chitiva
+* Maria Alejandra Arias Frontanilla
+
 
 ## Clone
 
