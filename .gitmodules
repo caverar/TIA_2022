@@ -1,3 +1,3 @@
 [submodule "data/license-plate-dataset"]
 	path = data/license-plate-dataset
-	url = git@github.com:RobertLucian/license-plate-dataset.git
+	url = https://github.com/RobertLucian/license-plate-dataset.git

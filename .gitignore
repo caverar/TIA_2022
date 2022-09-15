@@ -1,2 +1,9 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
 /data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
 /data/Car_License_Plate_Detection
+yolo_plate_ocr_dataset.zip
+yolo_plate_dataset.zip
+Car_License_Plate_Detection.zip
