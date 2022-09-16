@@ -1,7 +1,7 @@
 from sys import platform
 import os
 import shutil
-from lib import gdrivedl as gdl
+from lib.gdrivedl import gdrivedl as gdl
 from lib.termcolor import colored
 
 data_download_link = "https://drive.google.com/drive/folders/1iL811t_-eqnuNwVBGeeU-HG3k6Whd3U9"

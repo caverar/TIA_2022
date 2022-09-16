@@ -1,3 +1,6 @@
 [submodule "data/license-plate-dataset"]
 	path = data/license-plate-dataset
 	url = https://github.com/RobertLucian/license-plate-dataset.git
+[submodule "lib/gdrivedl"]
+	path = lib/gdrivedl
+	url = https://github.com/matthuisman/gdrivedl.git
