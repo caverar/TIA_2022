@@ -5,7 +5,7 @@ import shutil
 
 sys.path.insert(1, os.getcwd() + "/" + "/lib/termcolor/src/termcolor")
 from termcolor import colored
-from lib.gdrivedl import gdrivedl as gdl
+from gdrivedl import gdrivedl as gdl
 
 
 data_download_link = "https://drive.google.com/drive/folders/1iL811t_-eqnuNwVBGeeU-HG3k6Whd3U9"

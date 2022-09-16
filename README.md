@@ -27,5 +27,5 @@ Download from google drive automatically using  [gdrivedl](https://github.com/ma
 Is not necessary to install anything
 
 ```sh
-python3 datadl.py
+python lib/datadl.py
 ```
