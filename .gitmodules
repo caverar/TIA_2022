@@ -4,3 +4,6 @@
 [submodule "lib/gdrivedl"]
 	path = lib/gdrivedl
 	url = https://github.com/matthuisman/gdrivedl.git
+[submodule "lib/termcolor"]
+	path = lib/termcolor
+	url = https://github.com/termcolor/termcolor.git
