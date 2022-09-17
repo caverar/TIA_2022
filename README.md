@@ -7,25 +7,13 @@ The members of the team are:
 * [Cristian Yesid Chitiva Vela](https://github.com/cychitivav)
 * [Maria Alejandra Arias Frontanilla](https://github.com/ariasAleia)
 
-## Clone
+## Clone and download datasets
 
-```bash
-git clone https://github.com/caverar/TIA_2022.git
-cd TIA_2022
-git submodule init
-git submodule update
-```
-
-## Project requirements
-
-### Libraries
-* OpenCV (`pip install opencv-contrib-python`)
-* Numpy (`pip install numpy`)
-### Download dataset
-
-Download from google drive automatically using  [gdrivedl](https://github.com/matthuisman/gdrivedl) and [termcolor](https://pypi.org/project/termcolor/).
+Clone with submodules and download from google drive some datasets automatically using [gdrivedl](https://github.com/matthuisman/gdrivedl) and [termcolor](https://pypi.org/project/termcolor/).
 Is not necessary to install anything
 
-```sh
+```bash
+git clone --recurse-submodules https://github.com/caverar/TIA_2022.git
+cd TIA_2022
 python lib/datadl.py
 ```
