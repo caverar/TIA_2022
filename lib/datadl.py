@@ -37,7 +37,7 @@ def main():
     # Download zip files
     if(must_download): 
         print(colored("Downloading...","cyan"))
-        gdl.main([data_download_link])  # TODO Add directory_prefix
+        gdl.main([data_download_link])
     else:
         print(colored("Files already downloaded, skipping download","yellow"))
 
