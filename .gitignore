@@ -6,3 +6,4 @@
 /data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano
 /data/Car_License_Plate_Detection
 *.zip
+.ipynb_checkpoints
