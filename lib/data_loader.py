@@ -183,45 +183,46 @@ class DataLoader:
 
         # Load image and get size.
         if image_type == "multiple_car":
-            image = cv2.imread(self.multiple_car_data[name].image_path, cv2.IMREAD_UNCHANGED)
+            image = cv2.imread(self.multiple_car_data[name].image_path, cv2.IMREAD_COLOR)
         else:   # "one_car"
-            image = cv2.imread(self.one_car_data[name].image_path, cv2.IMREAD_UNCHANGED)
+            image = cv2.imread(self.one_car_data[name].image_path, cv2.IMREAD_COLOR)
         image_width = float(image.shape[1])
         image_height = float(image.shape[0])
 
-        # Verify if the scale must be adjusted in width or height
-        do_scale_width = True        
-        if image_width >= image_height:
-            do_scale_width = not (float(self.scale_resolution[0])/image_width) * image_height > self.scale_resolution[1]
-        else:
-            do_scale_width = (float(self.scale_resolution[1])/image_height) * image_width > self.scale_resolution[0]
-
-        # Calculate scale factor and offset taking into account aspect ratio.
+        # Calculate scale factor and padding taking into account aspect ratio.
         scale_factor = 1.0
-        x_offset = 0
-        y_offset = 0
-        if do_scale_width:
+        x_padding = 0
+        y_padding = 0
+
+        if (float(self.scale_resolution[0])/image_width) <= (float(self.scale_resolution[1])/image_height):
             scale_factor = float(self.scale_resolution[0])  / image_width
-            y_offset = (self.scale_resolution[1] -(scale_factor*image_height))/2
+            y_padding = int((self.scale_resolution[1] - int(scale_factor*image_height))/2)
         else:
             scale_factor = float(self.scale_resolution[1])  / image_height
-            x_offset = (self.scale_resolution[0] -(scale_factor*image_width))/2
-
+            x_padding = int((self.scale_resolution[0] - int(scale_factor*image_width))/2)
 
         # Calculate new height and width of the final image.
 
         new_height = int(image_height * scale_factor)
         new_width = int(image_width * scale_factor)
 
+        print("New height and width: " + str(new_width) + ", height: " + str(new_height))
 
-        # Resize
+        # Resize image, pad edges and resize again to fix the resolution.
         image = cv2.resize(image, (new_width, new_height))
+        x_padding_offset = int(self.scale_resolution[0] - new_width - (2*x_padding))
+        y_padding_offset = int(self.scale_resolution[1] - new_height - (2*y_padding))
+        image = np.pad(image, ((y_padding ,y_padding + y_padding_offset), (x_padding,x_padding + x_padding_offset),
+                               (0,0)),"edge" )  # type: ignore        
+        image = cv2.resize(image, (self.scale_resolution[0],self.scale_resolution[1]))
+        
+        
 
-        background_image = np.zeros(self.scale_resolution, dtype = int)
+        #print(background_image.shape)
 
         print("scale_factor: " + str(scale_factor))
-        print("x_offset: " + str(x_offset)) 
-        print("y_offset: " + str(y_offset))
+        print("x_padding: " + str(x_padding)) 
+        print("y_padding: " + str(y_padding))
 
         return image
 
@@ -236,7 +237,7 @@ if __name__ == '__main__':
                      "txt_raw")
     ]
 
-    data_loader = DataLoader((1000,500),data_paths)
+    data_loader = DataLoader((400,400),data_paths)
     # print("One Car Data---------------------------------------------------------------------")
     # for item in data_loader.one_car_data:
     #     print("->"+ str(item.resolution) + " " + str(item.segmented_border))
@@ -248,14 +249,14 @@ if __name__ == '__main__':
     print("One car len " + str(len(data_loader.one_car_data)))
     print("Multiple car len " + str(len(data_loader.multiple_car_data)))
 
-    org_img = cv2.imread((data_loader.one_car_data[list(data_loader.one_car_data.keys())[1000]]).image_path,
-                         cv2.IMREAD_UNCHANGED)
+    org_img = cv2.imread((data_loader.one_car_data[list(data_loader.one_car_data.keys())[500]]).image_path,
+                         cv2.IMREAD_COLOR)
     print("Original shape:" + str(org_img.shape))
     cv2.imshow("Original shape",org_img)
     cv2.waitKey(2000)
 
-    img = data_loader.scale_image(list(data_loader.one_car_data.keys())[1000])
-    print("Resized shape:" + str(img.shape))
+    img = data_loader.scale_image(list(data_loader.one_car_data.keys())[500])
+    print("Resized shape:" + str(np.shape(img)))
 
 
     cv2.imshow("Resized image",img)
