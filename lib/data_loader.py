@@ -1,10 +1,13 @@
-import os
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from typing import Union
 
-from PIL import Image
+import os
+import xml.etree.ElementTree as ET
+
+from PIL import Image, ImageOps
+
 import numpy as np
+import cv2
 
 # TODO Improve documentation
 @dataclass
@@ -14,7 +17,7 @@ class DataSample:
     segmented output.
     """
 
-    name: str
+    image_path: str
     resolution: tuple[int,int]
     segmented_border: Union[list[float], list[list[float]]]
     """ [xmin,ymin,xmax,ymax] """
@@ -48,12 +51,12 @@ def get_xml_yolo(file_path: str)->list[float]:
 
     data = [0.0 for i in range(4)]
 
-    file = ET.parse(file_path+".xml")
+    file: ET.ElementTree = ET.parse(file_path+".xml")
 
-    data[0] = float(file.find("object").find("bndbox").find("xmin").text)
-    data[1] = float(file.find("object").find("bndbox").find("ymin").text)
-    data[2] = float(file.find("object").find("bndbox").find("xmax").text)
-    data[3] = float(file.find("object").find("bndbox").find("ymax").text)
+    data[0] = float(file.find("object").find("bndbox").find("xmin").text)  # type: ignore
+    data[1] = float(file.find("object").find("bndbox").find("ymin").text)  # type: ignore
+    data[2] = float(file.find("object").find("bndbox").find("xmax").text)  # type: ignore  
+    data[3] = float(file.find("object").find("bndbox").find("ymax").text)  # type: ignore
 
     return data
 
@@ -70,10 +73,10 @@ def get_multiple_xml_yolo(file_path: str)->list[list[float]]:
     data_list = ET.parse(file_path+".xml").findall('object')
     for element in data_list:
         data.append([
-            float(element.find("bndbox").find("xmin").text),
-            float(element.find("bndbox").find("ymin").text),
-            float(element.find("bndbox").find("xmax").text),
-            float(element.find("bndbox").find("ymax").text)
+            float(element.find("bndbox").find("xmin").text),  # type: ignore
+            float(element.find("bndbox").find("ymin").text),  # type: ignore
+            float(element.find("bndbox").find("xmax").text),  # type: ignore
+            float(element.find("bndbox").find("ymax").text)   # type: ignore
         ])
     return data
 
@@ -120,6 +123,7 @@ def get_txt_raw(file_path: str, resolution: tuple[int, int])->list[float]:
     return data
 
 
+
 class DataLoader:
     """_summary_
 
@@ -127,8 +131,8 @@ class DataLoader:
         _type_: _description_
     """
 
-    one_car_data = []
-    multiple_car_data = []
+    one_car_data: dict[str, DataSample] = {}
+    multiple_car_data: dict[str, DataSample] = {}
     plates_data = []
     counter = 0
 
@@ -149,35 +153,80 @@ class DataLoader:
 
                     # get image name and resolution
                     name = os.path.join(file)
+                    image_path = path + data_set.image_subdirectory + name
                     resolution = Image.open(path + data_set.image_subdirectory + name).size
 
                     # Verify the tag format and append images description
                     if data_set.boundary_tag_type == "xml_yolo" :
                         if verify_xml_yolo(path + data_set.label_subdirectory + name[:-4]):
                             segmented_border = get_xml_yolo(path + data_set.label_subdirectory + name[:-4])
-                            self.one_car_data.append(DataSample(name,resolution,segmented_border))
+                            self.one_car_data[name] = DataSample(image_path, resolution,segmented_border)
                         else:
                             segmented_border = get_multiple_xml_yolo(path + data_set.label_subdirectory + name[:-4])
-                            self.multiple_car_data.append(DataSample(name,resolution,segmented_border))
+                            self.multiple_car_data[name] = DataSample(image_path, resolution, segmented_border)
 
                     elif data_set.boundary_tag_type == "txt_raw":
                         if verify_txt_raw(path + data_set.label_subdirectory + name[:-4]):
 
                             segmented_border = get_txt_raw(path + data_set.label_subdirectory + name[:-4], resolution)
-                            self.one_car_data.append(DataSample(name,resolution, segmented_border))
+                            self.one_car_data[name] = DataSample(image_path, resolution,segmented_border)
                         else:
                             segmented_border = get_multiple_txt_raw(path + data_set.label_subdirectory + name[:-4], 
                                                                     resolution)
-                            self.multiple_car_data.append(DataSample(name,resolution, segmented_border))
+                            self.multiple_car_data[name] = DataSample(image_path, resolution, segmented_border)
 
         # Identify segmented plates
 
 
-    # def load_image(self)->Image:
-        # TODO implement
-    #     pass
 
-def main():
+    def scale_image(self, name: str, image_type: str = "one_car")->cv2.Mat:
+
+        # Load image and get size.
+        if image_type == "multiple_car":
+            image = cv2.imread(self.multiple_car_data[name].image_path, cv2.IMREAD_UNCHANGED)
+        else:   # "one_car"
+            image = cv2.imread(self.one_car_data[name].image_path, cv2.IMREAD_UNCHANGED)
+        image_width = float(image.shape[1])
+        image_height = float(image.shape[0])
+
+        # Verify if the scale must be adjusted in width or height
+        do_scale_width = True        
+        if image_width >= image_height:
+            do_scale_width = not (float(self.scale_resolution[0])/image_width) * image_height > self.scale_resolution[1]
+        else:
+            do_scale_width = (float(self.scale_resolution[1])/image_height) * image_width > self.scale_resolution[0]
+
+        # Calculate scale factor and offset taking into account aspect ratio.
+        scale_factor = 1.0
+        x_offset = 0
+        y_offset = 0
+        if do_scale_width:
+            scale_factor = float(self.scale_resolution[0])  / image_width
+            y_offset = (self.scale_resolution[1] -(scale_factor*image_height))/2
+        else:
+            scale_factor = float(self.scale_resolution[1])  / image_height
+            x_offset = (self.scale_resolution[0] -(scale_factor*image_width))/2
+
+
+        # Calculate new height and width of the final image.
+
+        new_height = int(image_height * scale_factor)
+        new_width = int(image_width * scale_factor)
+
+
+        # Resize
+        image = cv2.resize(image, (new_width, new_height))
+
+        background_image = np.zeros(self.scale_resolution, dtype = int)
+
+        print("scale_factor: " + str(scale_factor))
+        print("x_offset: " + str(x_offset)) 
+        print("y_offset: " + str(y_offset))
+
+        return image
+
+
+if __name__ == '__main__':
 
     data_paths=[
         DataLocation("data/Car_License_Plate_Detection/", "images/", "annotations/", "xml_yolo"),
@@ -187,7 +236,7 @@ def main():
                      "txt_raw")
     ]
 
-    data_loader = DataLoader((640,480),data_paths)
+    data_loader = DataLoader((1000,500),data_paths)
     # print("One Car Data---------------------------------------------------------------------")
     # for item in data_loader.one_car_data:
     #     print("->"+ str(item.resolution) + " " + str(item.segmented_border))
@@ -199,5 +248,16 @@ def main():
     print("One car len " + str(len(data_loader.one_car_data)))
     print("Multiple car len " + str(len(data_loader.multiple_car_data)))
 
-if __name__ == '__main__':
-    main()
+    org_img = cv2.imread((data_loader.one_car_data[list(data_loader.one_car_data.keys())[1000]]).image_path,
+                         cv2.IMREAD_UNCHANGED)
+    print("Original shape:" + str(org_img.shape))
+    cv2.imshow("Original shape",org_img)
+    cv2.waitKey(2000)
+
+    img = data_loader.scale_image(list(data_loader.one_car_data.keys())[1000])
+    print("Resized shape:" + str(img.shape))
+
+
+    cv2.imshow("Resized image",img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
