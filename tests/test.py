@@ -3,7 +3,7 @@ import cv2 #This is openCV
 import matplotlib.pyplot as plt 
 
 #Upload images and save it in gray scale
-plate1 = cv2.imread('Fig/Placa1.jpg', cv2.IMREAD_COLOR)
+plate1 = cv2.imread('Fig/Placa4.jpg', cv2.IMREAD_COLOR)
 plate1 = cv2.cvtColor(plate1, cv2.COLOR_BGR2GRAY)
 bilateral_blur = cv2.bilateralFilter(plate1,11,17,17)
 edged = cv2.Canny(bilateral_blur, 30, 150)
@@ -28,5 +28,5 @@ white_background = black_background + 255
 
 cv2.drawContours(white_background, location, 0, (0), 1)
 plt.title("Contours")
-plt.imshow(cv2.cvtColor(white_background, cv2.COLOR_BGR2RGB))
+plt.imshow(cv2.cvtColor(white_background, cv2.COLOR_BGR2GRAY))
 plt.show()
