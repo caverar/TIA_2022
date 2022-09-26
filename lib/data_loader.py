@@ -4,7 +4,7 @@ from typing import Union
 import os
 import xml.etree.ElementTree as ET
 
-from PIL import Image, ImageOps
+from PIL import Image
 
 import numpy as np
 import cv2
@@ -16,11 +16,10 @@ class DataSample:
     This dataclass represents a sample of the dataset including the file name, image resolution and expected
     segmented output.
     """
-
     image_path: str
     resolution: tuple[int,int]
     segmented_border: Union[list[float], list[list[float]]]
-    """ [xmin,ymin,xmax,ymax] """
+    """ [xmin,ymin,xmax,ymax] or [xmin,ymin,xmax,ymax] or [value,xmin,ymin,xmax,ymax]"""
 
 @dataclass
 class DataLocation:
@@ -31,9 +30,18 @@ class DataLocation:
 
     directory_path: str
     image_subdirectory: str
-    label_subdirectory: str
-    boundary_tag_type: str 
+    annotation_subdirectory: str
+    boundary_tag_type: str
     """ "xml_yolo", "txt_raw" """
+
+@dataclass
+class ScaledDataSample:
+    name: str
+    image: cv2.Mat
+    segmented_border: Union[list[float], list[list[float]]]
+    """ [xmin,ymin,xmax,ymax] or [xmin,ymin,xmax,ymax] or [value,xmin,ymin,xmax,ymax]"""
+
+
 
 def verify_xml_yolo(file_path: str)->bool:
     """
@@ -136,7 +144,7 @@ class DataLoader:
     plates_data = []
     counter = 0
 
-    def __init__(self, scale_resolution: tuple[int, int], data_paths: list[DataLocation])->None:
+    def __init__(self, scale_resolution: tuple[int, int], dataset_paths: list[DataLocation])->None:
 
         current_directory = os.getcwd() + "/"
         self.scale_resolution = scale_resolution
@@ -145,7 +153,7 @@ class DataLoader:
         segmented_border = None
 
         # Identify segmented images
-        for data_set in data_paths:
+        for data_set in dataset_paths:
             path = current_directory+ data_set.directory_path
             for file in os.listdir(path + data_set.image_subdirectory):
                 if file.endswith(".jpg") or file.endswith(".png"):
@@ -158,20 +166,20 @@ class DataLoader:
 
                     # Verify the tag format and append images description
                     if data_set.boundary_tag_type == "xml_yolo" :
-                        if verify_xml_yolo(path + data_set.label_subdirectory + name[:-4]):
-                            segmented_border = get_xml_yolo(path + data_set.label_subdirectory + name[:-4])
+                        if verify_xml_yolo(path + data_set.annotation_subdirectory + name[:-4]):
+                            segmented_border = get_xml_yolo(path + data_set.annotation_subdirectory + name[:-4])
                             self.one_car_data[name] = DataSample(image_path, resolution,segmented_border)
                         else:
-                            segmented_border = get_multiple_xml_yolo(path + data_set.label_subdirectory + name[:-4])
+                            segmented_border = get_multiple_xml_yolo(path +data_set.annotation_subdirectory +name[:-4])
                             self.multiple_car_data[name] = DataSample(image_path, resolution, segmented_border)
 
                     elif data_set.boundary_tag_type == "txt_raw":
-                        if verify_txt_raw(path + data_set.label_subdirectory + name[:-4]):
+                        if verify_txt_raw(path + data_set.annotation_subdirectory + name[:-4]):
 
-                            segmented_border = get_txt_raw(path + data_set.label_subdirectory + name[:-4], resolution)
+                            segmented_border = get_txt_raw(path +data_set.annotation_subdirectory+ name[:-4],resolution)
                             self.one_car_data[name] = DataSample(image_path, resolution,segmented_border)
                         else:
-                            segmented_border = get_multiple_txt_raw(path + data_set.label_subdirectory + name[:-4], 
+                            segmented_border = get_multiple_txt_raw(path + data_set.annotation_subdirectory + name[:-4], 
                                                                     resolution)
                             self.multiple_car_data[name] = DataSample(image_path, resolution, segmented_border)
 
@@ -179,7 +187,7 @@ class DataLoader:
 
 
 
-    def scale_image(self, name: str, image_type: str = "one_car")->cv2.Mat:
+    def scale_image(self, name: str, image_type: str = "one_car")->tuple[cv2.Mat, list[int]]:
 
         # Load image and get size.
         if image_type == "multiple_car":
@@ -215,8 +223,6 @@ class DataLoader:
         image = np.pad(image, ((y_padding ,y_padding + y_padding_offset), (x_padding,x_padding + x_padding_offset),
                                (0,0)),"edge" )  # type: ignore        
         image = cv2.resize(image, (self.scale_resolution[0],self.scale_resolution[1]))
-        
-        
 
         #print(background_image.shape)
 

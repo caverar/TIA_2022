@@ -3,21 +3,26 @@ import sys
 import os
 import shutil
 
-sys.path.insert(1, os.getcwd() + "/" + "/lib/termcolor/src/termcolor")
-from termcolor import colored
 from gdrivedl import gdrivedl as gdl
+from termcolor import colored
+
+sys.path.insert(1, os.getcwd() + "/" + "/lib/termcolor/src/termcolor")
 
 
-data_download_link = "https://drive.google.com/drive/folders/1iL811t_-eqnuNwVBGeeU-HG3k6Whd3U9"
+DATA_DOWNLOAD_LINK = "https://drive.google.com/drive/folders/1iL811t_-eqnuNwVBGeeU-HG3k6Whd3U9"
 
 folder_list = {
     "Car_License_Plate_Detection.zip": "data/Car_License_Plate_Detection",
     "yolo_plate_dataset.zip": "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano",
     "yolo_plate_ocr_dataset.zip": "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano",
-}  
-""" List of downloadable files with their respective save path """
+}
+""" List of downloadable files with their respective save path. """
+
 
 def main():
+    """
+    Main function.
+    """
 
     current_path = os.getcwd() + "/"
 
@@ -35,9 +40,9 @@ def main():
             must_download = True
 
     # Download zip files
-    if(must_download): 
+    if must_download:
         print(colored("Downloading...","cyan"))
-        gdl.main([data_download_link])
+        gdl.main([DATA_DOWNLOAD_LINK])
     else:
         print(colored("Files already downloaded, skipping download","yellow"))
 
@@ -49,8 +54,8 @@ def main():
 
     # Extract zip files
     print(colored("Extracting zip files...","cyan"))
-    for file in folder_list:
-        shutil.unpack_archive(current_path+file, current_path+folder_list[file])
+    for file in folder_list.items():
+        shutil.unpack_archive(current_path + file[0], current_path + file[1])
 
     # Delete zip files
     print(colored("Deleting zip files...","cyan"))
@@ -59,6 +64,6 @@ def main():
             os.remove(current_path+file)
 
     print(colored("Done!","green"))
-
+    
 if __name__ == "__main__":
     main()
