@@ -19,7 +19,7 @@ print(np.max(h), np.min(h))
 
 for i in range(h.shape[0]):
     for j in range(h.shape[1]):
-        if h[i,j] < 90:
+        if h[i,j] < 90 or h[i, j] > 110:
             img[i,j] = 0
 
 # Mostramos la imagen
