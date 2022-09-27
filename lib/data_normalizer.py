@@ -4,6 +4,7 @@ import sys
 import os
 import shutil
 import xml.etree.ElementTree as ET
+import csv
 
 import numpy as np
 import cv2
@@ -202,6 +203,7 @@ class DataNormalizer():
     ocr_data_array: list[DataSample] = []
     plates_desired_resolution = 0
     ocr_desired_resolution = 0
+    normalized_data_path = ""
 
     def __init__(self, dataset_locations: list[DataSetLocation]) -> None:
         print(colored("Loading the annotations...","yellow"))
@@ -223,13 +225,17 @@ class DataNormalizer():
                     # Load the annotations
                     if dataset.annotation_format == "plate_xml_voc":
                         expected_output = load_xml_voc(annotation_path, resolution)
-                        self.plates_data_array.append(DataSample(image_path, expected_output,dataset_id))
+                        if len(expected_output) > 1:
+                            dataset_id = 1
+                        self.plates_data_array.append(DataSample(image_path, expected_output, dataset_id))
                     elif dataset.annotation_format == "plate_txt_yolo":
                         expected_output = load_txt_yolo(annotation_path, resolution)
-                        self.plates_data_array.append(DataSample(image_path, expected_output,dataset_id))
+                        if len(expected_output) > 1:
+                            dataset_id = 1
+                        self.plates_data_array.append(DataSample(image_path, expected_output, dataset_id))
                     elif dataset.annotation_format == "ocr_txt_yolo":
                         expected_output = load_txt_yolo(annotation_path, resolution)
-                        self.ocr_data_array.append(DataSample(image_path, expected_output,dataset_id))
+                        self.ocr_data_array.append(DataSample(image_path, expected_output, dataset_id))
                     else:
                         raise Exception("\"" + dataset.annotation_format +"\" format not supported")
 
@@ -238,11 +244,12 @@ class DataNormalizer():
         print(colored("Annotations loaded","green"))
 
     def save_images(self, _plates_desired_resolution: tuple[int,int], _ocr_desired_resolution: tuple[int,int],
-                    path: str = "normalized_data") -> None:
+                    _normalized_data_path: str = "normalized_data") -> None:
         """
         This function saves all the images rescaled to an specific resolution, resulting in two folders for both plates
         dataset and ocr dataset.
         """
+        self.normalized_data_path = _normalized_data_path
         self.plates_desired_resolution = _plates_desired_resolution
         self.ocr_desired_resolution = _ocr_desired_resolution
 
@@ -250,34 +257,97 @@ class DataNormalizer():
         print(colored("Saving normalized images...","yellow"))
 
         # remove pre existing folder
-        if os.path.isdir(current_path + path):
-            shutil.rmtree(current_path + path)
+        if os.path.isdir(current_path + self.normalized_data_path):
+            shutil.rmtree(current_path + self.normalized_data_path)
 
         # Create sub folders
-        os.makedirs(current_path + path + "/plates_images")
-        os.makedirs(current_path + path + "/ocr_images")
+        os.makedirs(current_path + self.normalized_data_path + "/plates_images")
+        os.makedirs(current_path + self.normalized_data_path + "/ocr_images")
         image_name = 0
         for sample in self.plates_data_array:
             (image_file, sample.expected_output) = resize_image(sample.image_path, sample.expected_output,
                                                                 self.plates_desired_resolution)
-            cv2.imwrite(current_path + path + "/plates_images/" + str(image_name) + ".jpg", image_file)
+            cv2.imwrite(current_path + self.normalized_data_path + "/plates_images/" + str(image_name) + ".jpg",
+                        image_file)
+            sample.image_path = current_path + self.normalized_data_path + "/plates_images/" + str(image_name) + ".jpg"
             image_name += 1
 
 
         for sample in self.ocr_data_array:
             (image_file, sample.expected_output) = resize_image(sample.image_path, sample.expected_output,
                                                                 self.plates_desired_resolution)
-            cv2.imwrite(current_path + path + "/ocr_images/" + str(image_name) + ".jpg", image_file)
+            cv2.imwrite(current_path + self.normalized_data_path + "/ocr_images/" + str(image_name) + ".jpg", 
+                        image_file)
+            sample.image_path = current_path + self.normalized_data_path + "/ocr_images/" + str(image_name) + ".jpg"
             image_name += 1
 
         print(colored("Image saving finished","green"))
-    
+
+    def generate_plates_csv(self, id_filters: tuple[int, ...] = (0, 1))->None:
+        """
+        This function generates the csv files with the annotations for the plates images, taking a list of  dataset ids
+        allowed to be included in the the cvs file.  
+        """
+
+        print(colored("Generating plates csv","yellow"))
+        current_path = os.getcwd() + "/"
+
+        # Delete the file if already exist.
+        if os.path.isfile(current_path + self.normalized_data_path + "plates.csv"):
+            os.remove(current_path + self.normalized_data_path + "plates.csv")
+
+        # Create the table.
+        output_table = []
+        for sample in  self.plates_data_array:
+            if sample.dataset_id in id_filters:
+                for entry in sample.expected_output:
+                    output_table.append([sample.image_path] + entry)
+
+        # Write the csv.
+        with open(current_path + self.normalized_data_path + "/plates.csv", 'w', encoding="utf-8") as file:
+
+            write = csv.writer(file)
+            write.writerow(["img_path", "tag", "xmin", "ymin", "xmax", "ymax"])
+            write.writerows(output_table)
+
+        print(colored("Plates csv finished","green"))
+
+
+    def generate_ocr_csv(self, id_filters: tuple[int, ...] = (4,))->None:
+        """
+        This function generates the csv files with the annotations for the ocr images, taking a list of  dataset ids
+        allowed to be included in the the cvs file.
+        """
+
+        print(colored("Generating OCR csv","yellow"))
+        current_path = os.getcwd() + "/"
+
+        # Delete the file if already exist.
+        if os.path.isfile(current_path + self.normalized_data_path + "ocr.csv"):
+            os.remove(current_path + self.normalized_data_path + "ocr.csv")
+
+        # Create the table.
+        output_table = []
+        for sample in  self.ocr_data_array:
+            if sample.dataset_id in id_filters:
+                for entry in sample.expected_output:
+                    output_table.append([sample.image_path] + entry)
+
+        # Write the csv.
+        with open(current_path + self.normalized_data_path + "/ocr.csv", 'w', encoding="utf-8") as file:
+
+            write = csv.writer(file)
+            write.writerow(["img_path", "tag", "xmin", "ymin", "xmax", "ymax"])
+            write.writerows(output_table)
+
+        print(colored("OCR csv finished","green"))
+
 if __name__ == "__main__":
 
     # ID description:
     # 0: Plates
-    # 1: Available
-    # 2: Available
+    # 1: Multiple Plates
+    # 2: Plates for NN techniques
     # 3: Available
     # 4: OCR
     # 5: Available
@@ -288,18 +358,18 @@ if __name__ == "__main__":
 
 
     dataset_paths=[
-        DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
-        # DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
+        DataSetLocation(1, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
+        DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
         # DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
         # DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
         #                 "plate_txt_yolo"),
-        # DataSetLocation(1, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_ocr_dataset/", "",
-        #                 "", "ocr_txt_yolo")
+        DataSetLocation(4, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_ocr_dataset/", "",
+                        "", "ocr_txt_yolo")
     ]
     data_normalizer = DataNormalizer(dataset_paths)
     data_normalizer.save_images((640,480),(640,480))
-
-
+    data_normalizer.generate_plates_csv()
+    data_normalizer.generate_ocr_csv()
 
     # (scaled_image, scaled_box) = resize_image(data_normalizer.plates_data_array[10].image_path, 
     #                                      data_normalizer.plates_data_array[10].expected_output, (1000,480))
