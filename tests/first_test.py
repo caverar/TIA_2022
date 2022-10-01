@@ -3,7 +3,17 @@ import cv2
 from verify_plate_image import verify_plate
 
 def test_plate_method_1(img):
-    
+    """
+    Detects zone plate of an image using found contours 
+
+        Parameters:
+            img (ndarray): Image in BGR
+
+        Returns:
+            bool: Found plate
+            ndarray: possible zone plate image
+            string: message of the procedure
+    """
     plate_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     bilateral_blur = cv2.bilateralFilter(plate_gray,11,17,17)
     edged = cv2.Canny(bilateral_blur, 30, 150)    
