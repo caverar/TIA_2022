@@ -11,6 +11,7 @@ The members of the team are:
 ## Dependencies
 
 ```bash
+pip install termcolor
 pip install numpy
 pip install matplotlib
 pip install opencv-contrib-python

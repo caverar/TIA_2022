@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-
-import sys
 import os
 import shutil
 import xml.etree.ElementTree as ET
@@ -9,10 +7,7 @@ import csv
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-
 from termcolor import colored
-
-sys.path.insert(1, os.getcwd() + "/" + "/lib/termcolor/src/termcolor")
 
 @dataclass
 class DataSetLocation:

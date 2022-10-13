@@ -5,7 +5,3 @@
 	path = lib/gdrivedl
 	url = https://github.com/matthuisman/gdrivedl.git
 	ignore = all
-[submodule "lib/termcolor"]
-	path = lib/termcolor
-	url = https://github.com/termcolor/termcolor.git
-	ignore = all
