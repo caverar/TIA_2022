@@ -8,6 +8,16 @@ The members of the team are:
 * [Cristian Yesid Chitiva Vela](https://github.com/cychitivav)
 * [Maria Alejandra Arias Frontanilla](https://github.com/ariasAleia)
 
+## Dependencies
+
+```bash
+pip install numpy
+pip install matplotlib
+pip install opencv-contrib-python
+pip install pandas
+pip install tensorflow
+```
+
 ## Clone and download datasets
 
 Clone with submodules and download from google drive some datasets automatically using [gdrivedl](https://github.com/matthuisman/gdrivedl) and [termcolor](https://pypi.org/project/termcolor/).
