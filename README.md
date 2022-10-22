@@ -17,6 +17,10 @@ pip install matplotlib
 pip install opencv-contrib-python
 pip install pandas
 pip install tensorflow
+
+# WSL
+pip install tensorflow-cpu
+pip install tensorflow-directml-plugin
 ```
 
 ## Clone and download datasets

@@ -278,10 +278,39 @@ class DataNormalizer():
 
         print(colored("Image saving finished","green"))
 
+    def generate_unique_plates_csv(self, id_filters: tuple[int, ...] = (0, 1))->None:
+        """
+        This function generates the csv file with the annotations for the plates images with only one plate, taking a 
+        list of dataset ids filters allowed to be included in the the cvs file.  
+        """
+
+        print(colored("Generating plates csv","yellow"))
+        current_path = os.getcwd() + "/"
+
+        # Delete the file if already exist.
+        if os.path.isfile(current_path + self.normalized_data_path + "unique_plates.csv"):
+            os.remove(current_path + self.normalized_data_path + "unique_plates.csv")
+
+        # Create the table.
+        output_table = []
+        for sample in  self.plates_data_array:
+            if sample.dataset_id in id_filters:
+                if len(sample.expected_output) == 1:
+                    output_table.append([sample.image_path] + sample.expected_output[0])
+
+        # Write the csv.
+        with open(current_path + self.normalized_data_path + "/unique_plates.csv", 'w', encoding="utf-8") as file:
+
+            write = csv.writer(file)
+            write.writerow(["img_path", "tag", "xmin", "ymin", "xmax", "ymax"])
+            write.writerows(output_table)
+
+        print(colored("Plates csv finished","green"))
+        
     def generate_plates_csv(self, id_filters: tuple[int, ...] = (0, 1))->None:
         """
         This function generates the csv files with the annotations for the plates images, taking a list of  dataset ids
-        allowed to be included in the the cvs file.  
+        filters allowed to be included in the the cvs file.  
         """
 
         print(colored("Generating plates csv","yellow"))
@@ -362,9 +391,10 @@ if __name__ == "__main__":
                         "", "ocr_txt_yolo")
     ]
     data_normalizer = DataNormalizer(dataset_paths)
-    data_normalizer.save_images((640,480),(640,480))
+    data_normalizer.save_images((480,480),(480,480))
     data_normalizer.generate_plates_csv()
     data_normalizer.generate_ocr_csv()
+    data_normalizer.generate_unique_plates_csv()
 
     # (scaled_image, scaled_box) = resize_image(data_normalizer.plates_data_array[10].image_path, 
     #                                      data_normalizer.plates_data_array[10].expected_output, (1000,480))
