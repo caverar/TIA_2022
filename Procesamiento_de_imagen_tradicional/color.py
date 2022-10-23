@@ -3,7 +3,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 # Cargamos la imagen
-img_original = cv2.imread('Proc_imagen/Fig/Placa5.jpg')
+img_original = cv2.imread('Procesamiento_de_imagen_tradicional/Fig/Placa2.jpg')
 img = cv2.cvtColor(img_original, cv2.COLOR_BGR2RGB)
 
 # Convertimos la imagen a HSV

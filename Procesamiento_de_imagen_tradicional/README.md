@@ -21,6 +21,58 @@ En las siguientes secciones se explicará el funcionamiento del algoritmo 1 y 2 
 
 ### Algoritmo 1: Contornos
 
+El primer algoritmo usado se basa en la detección de contornos. Para esto primero se aplicó un efecto difuso a la imagen en escala de grises con la función bilateralBlur con el fin de eliminar ruido pero conservar los bordes. 
+
+```python
+plate_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+bilateral_blur = cv2.bilateralFilter(plate_gray,11,17,17)
+```
+
+Imagen original:
+
+![image](https://user-images.githubusercontent.com/102924128/197419670-19a5e2bb-002c-4270-a3dd-5fd874a2822b.png)
+
+Imagen después de efecto bilateral blur:
+
+![image](https://user-images.githubusercontent.com/102924128/197419750-f1f3b523-c256-4aa3-bf26-d0b833a797c8.png)
+
+Seguido de esto se uso el algoritmo de detección de bordes de Canny.
+
+```python
+edged = cv2.Canny(bilateral_blur, 30, 150)  
+```
+
+Imagen después de aplicar algoritmo de Canny:
+
+![image](https://user-images.githubusercontent.com/102924128/197419769-680ce1ff-208c-417d-b3c0-a1505146cb83.png)
+
+Después se hallaron los contornos y se realizó una aproximación poligonal filtrando únicamente aquellos polígonos conformados por 4 puntos. Lo anterior se realizó teniendo en cuenta que la placa en las imágenes suele tener una forma rectangular.
+
+```python
+contours = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[0]
+
+location = []
+for cnt in contours:
+    approx = cv2.approxPolyDP(cnt, 8, True)
+    if(len(approx) == 4):
+        location.append(approx)
+```
+![image](https://user-images.githubusercontent.com/102924128/197419791-318e267c-dabc-476f-ac1f-05df144cdf8d.png)
+
+Finalmente se escoge el contorno con mayor área y esa es la región que se toma como posible placa.
+
+```python
+location = sorted(location, key = cv2.contourArea, reverse = True)
+selected_contour = 0
+white_background = np.zeros_like(plate_gray) + 255
+cv2.drawContours(white_background, location, selected_contour, (0), 1)
+```
+
+![image](https://user-images.githubusercontent.com/102924128/197419813-4cf25fc5-7ef6-4643-a77a-8be1d7e7c3c3.png)
+
+
+El código completo que muestra únicamente el resultado del algoritmo 1 se encuentra en el archivo [first_test.py](first_test.py). En el jupyter notebook [test1.ipynb](test1.ipynb) se encuentra el código con las imágenes paso a paso de lo previamente explicado.
+
 ### Algoritmo de verificación
 
 ### Algoritmo 2: Bordes verticales
@@ -62,6 +114,32 @@ for i in range(h.shape[0]):
         if h[i,j] < 90 or h[i, j] > 110:
             img[i,j] = 0
 ```
+
+El código completo se encuentra en el archivo [color.py](color.py).
+Un ejemplo del resultado después de aplicar filtrado por color se puede ver a continuación.
+
+Imagen original:
+
+
+![image](https://user-images.githubusercontent.com/102924128/197416746-1ab3325d-42ae-490c-9709-84c32d00597d.png)
+
+
+Imagen después de filtrado por color:
+
+![image](https://user-images.githubusercontent.com/102924128/197416703-05f3f172-30b9-4224-939e-5120568b0dfb.png)
+
+* **Contornos con hijos:** 
+
+En este caso se hallaron primero los contornos de la imagen después de realizar una detección de bordes mediante el Algoritmo de Canny. Seguido de esto, se seleccionaron  ́unicamente aquellos contornos que tuviesen hijos, es decir, aquellos que tuviesen contornos en su interior. Esto se hace debido en la zona de la placa es muy probable que los caracteres, letras y números de la placa, aparezcan al interior de un contorno rectangular. A continuación se muestra un ejemplo de este proceso. El código completo se encuentra en el archivo [contornos_con_hijos.ipynb](contornos_con_hijos.ipynb).
+
+Imagen con todos los contornos:
+
+![image](https://user-images.githubusercontent.com/102924128/197416927-18923094-5cc7-40b6-a84f-7d2dc09a13b7.png)
+
+Imagen únicamente con contornos con hijos:
+
+![image](https://user-images.githubusercontent.com/102924128/197416999-dd64e507-76d5-4b42-aa36-9872ee144867.png)
+
 
 
 ## Conclusiones
