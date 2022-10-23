@@ -122,6 +122,7 @@ El código completo se puede encontrar en el archivo [verify_plate_image.py](ver
 En el algoritmo 2 se buscan los bordes verticales de la región rectangular que comprende a la placa. Para esto se toma la imagen original y se aplica un efecto difuso seguido de una detección de bordes mediante el algoritmo de Canny.
 
 Imagen original:
+
 ![image](https://user-images.githubusercontent.com/102924128/197420620-f2f344ab-91d6-4729-8457-a5a69f15a798.png)
 
 ```python
@@ -131,6 +132,7 @@ bilateral_blur = cv2.bilateralFilter(img_gray,11,17,17)
 edged = cv2.Canny(bilateral_blur, 240, 250)
 ```
 Imagen después de bilateral blur y algoritmo de Canny:
+
 ![image](https://user-images.githubusercontent.com/102924128/197420636-72cf3cdd-1dba-4feb-822e-8abb66f5ef4b.png)
 
 
