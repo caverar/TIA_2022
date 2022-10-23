@@ -75,9 +75,159 @@ El código completo que muestra únicamente el resultado del algoritmo 1 se encu
 
 ### Algoritmo de verificación
 
+Después de obtener la posible zona de la placa, se procede a verificar si efectivamente corresponde a una placa. Para esto, se evalúan cinco diferentes condiciones en donde se tienen como parámetros la altura y ancho de la imagen, la cantidad de píxeles blancos y negros después de realizar una umbralización y la cantidad de contornos presentes en la región.
+
+* Altura de la imagen > 10 píxeles
+* Ancho > 50 píxeles
+* (Altura / Ancho) > 20
+* Contornos > 10 
+* (Píxeles Blancos - Píxeles negros) > 0
+
+A continuación un fragmento del código que evalúa esas condiciones en la imagen de la posible zona de la placa que se recibe.
+
+```python
+plate_zone_gray = cv2.cvtColor(plate_zone, cv2.COLOR_BGR2GRAY)
+plate_zone_binary = cv2.threshold(plate_zone_gray, 127, 255, cv2.THRESH_BINARY)[1]
+h_plate, w_plate  = plate_zone_binary.shape
+
+min_height = 10
+bool_h = h_plate > min_height
+
+min_width = 50
+bool_w = w_plate > min_width
+
+height_width_relation = (h_plate / w_plate) * 100
+bool_h_w = height_width_relation > 20 
+
+plate_contours = cv2.findContours(plate_zone_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[0]  
+bool_contours = len(plate_contours) > 10
+
+hist = cv2.calcHist([plate_zone_binary],[0],None,[256],[0,256])
+white_pixels = hist[-1]
+black_pixels = hist[0]
+black_white_factor = 0
+
+bool_white_black = (white_pixels - black_pixels) > black_white_factor
+```
+Esta verificación se asemeja a una compuerta lógica AND dado que retorna un valor de *true*, es decir que una placa fue encontrada, únicamente cuando las cinco condiciones se cumplen.
+
+```python
+plate_found = bool_h and bool_w and bool_h_w and bool_contours and  bool_white_black
+```
+
+El código completo se puede encontrar en el archivo [verify_plate_image.py](verify_plate_image.py).
+
 ### Algoritmo 2: Bordes verticales
 
+En el algoritmo 2 se buscan los bordes verticales de la región rectangular que comprende a la placa. Para esto se toma la imagen original y se aplica un efecto difuso seguido de una detección de bordes mediante el algoritmo de Canny.
+
+Imagen original:
+![image](https://user-images.githubusercontent.com/102924128/197420620-f2f344ab-91d6-4729-8457-a5a69f15a798.png)
+
+```python
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+bilateral_blur = cv2.bilateralFilter(img_gray,11,17,17)
+edged = cv2.Canny(bilateral_blur, 240, 250)
+```
+Imagen después de bilateral blur y algoritmo de Canny:
+![image](https://user-images.githubusercontent.com/102924128/197420636-72cf3cdd-1dba-4feb-822e-8abb66f5ef4b.png)
+
+
+La imagen resultante es tratada con transformaciones morfológicas. Se realiza una erosión con un elemento estructurante en forma de vector de 5 x 1 para poder detectar bordes verticales. Seguido de esto se realiza un cierre con una matriz de 5x5 píxeles con el fin de eliminar ruido para finalmente volver a aplicar una erosión con un vector de 5 x 1. 
+
+```python
+kernel_v_line = np.ones((5, 1), np.uint8)
+
+erode_v = cv2.erode(edged, kernel_v_line) 
+
+kernel = np.ones((5,5),np.uint8)
+closing = cv2.morphologyEx(erode_v, cv2.MORPH_CLOSE, kernel)
+
+processed_image = cv2.erode(closing, kernel_v_line) 
+```
+Imagen después de transformaciones morfológicas:
+
+![image](https://user-images.githubusercontent.com/102924128/197420658-49b07480-8e70-4572-ba76-859ed72117b2.png)
+
+Después de las transformaciones morfológicas se realiza un barrido de la imagen y se seleccionan aquellas columnas y filas que tengan mayor número de píxeles blancos. El área encerrada por esas filas y columnas es la posible zona de la placa.
+
+```python
+white_in_rows = np.zeros(processed_image.shape[0])
+for i, row in enumerate(processed_image):
+    for value in row:
+        if value == 255: white_in_rows[i]+=1
+        
+white_in_columns = np.zeros(processed_image.shape[1])
+for i in range(processed_image.shape[1]):
+    for value in processed_image[:, i]:
+        if value == 255: white_in_columns[i]+=1
+
+min_white_pixels_columns = 20
+min_white_pixels_rows = 6
+selected_rows = [i for i, row in enumerate(white_in_rows) if row > min_white_pixels_rows]
+selected_columns = [i for i, column in enumerate(white_in_columns) if column > min_white_pixels_columns]
+```
+Antes de retornar la posible región de la imagen que corresponde a la zona de la placa, se hace una traslación de las columnas y filas seleccionadas con el fin de tener un factor de seguridad que permita encerrar la zona de la placa con cierta tolerancia y evitar que algún borde quede recortado.
+
+```python
+row_security_factor = 13
+column_security_factor = 3
+
+x1 = min(selected_rows)
+x2 = max(selected_rows)
+y1 = min(selected_columns)
+y2 = max(selected_columns)
+
+if x1 - row_security_factor > 0: x1 -= row_security_factor
+if y1 - column_security_factor > 0: y1 -= column_security_factor
+if x2 + row_security_factor > 0: x2 += row_security_factor
+if y2 + column_security_factor > 0: y2 += column_security_factor
+
+plate_zone2 = img[x1:x2, y1:y2]
+```
+Región de la imagen con posible zona de la placa:
+
+![image](https://user-images.githubusercontent.com/102924128/197420724-faa2fa66-fd8e-43cb-8ffa-370452dc84db.png)
+
+El código completo que muestra únicamente el resultado del algoritmo 1 se encuentra en el archivo [second_test.py](second_test.py). En el jupyter notebook [test2.ipynb](test2.ipynb) se encuentra el código con las imágenes paso a paso de lo previamente explicado.
+
 ### Programa completo
+
+El programa completo se encuentra en el archivo [plate_zone_detector.py](plate_zone_detector.py) que realiza la función de wrapper de tanto el algoritmo 1 y 2 como del algoritmo de verificación de la placa.
+
+A continuación se muestra la función correspondiente:
+
+```python
+def detect_plate(img):
+  """
+  Detects zone plate from an image using two different methods (contours and vertical boundaries). 
+  If zone plate is not found, original image is returned
+
+  Parameters:
+      img (ndarray): image in BGR
+
+  Returns:
+      bool: Found plate
+      ndarray: possible zone plate
+      string: info of plate verification process
+
+  """
+  b1, i1, m1 = test_plate_method_1(img)
+  if not b1:
+    return test_plate_method2(img)
+  return b1, i1, m1
+```
+
+Como entrada a la función se tiene la imagen de la cual quiere obtenerse la placa. En primera instancia, se busca detectar la placa mediante el algoritmo 1, usando contornos y aproximación poligonal. En caso de que no se detecte la placa por este método, se procede a usar el algoritmo 2 enfocado en encontrar bordes verticales y se verifica si la región hallada corresponde a la placa. Si se comprueba que la zona corresponde a una placa, se retorna la imagen de esa región. En caso contrario, se retorna la imagen original.
+
+Esta función recibe la imagen como arreglo ndarray en BGR y retorna tres valores.
+
+* boolean: Este valor retorna True si la zona de la placa fue encontrada y False si no se detectó la placa en la imagen
+* ndarray: Retorna la zona de la placa como imagen. Si la placa no fue detectada, retorna la imagen original
+* string: Reporta un mensaje con el algoritmo por el cual se encontró la placa, o la razón por la cual no se halló, y los resultados de la verificación de la placa.
+
+Un ejemplo del uso de esta función se encuentra en el archivo [example_test.ipynb](example_test.ipynb).
 
 ### Otras alternativas exploradas
 
