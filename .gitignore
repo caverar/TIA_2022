@@ -8,5 +8,3 @@
 *.zip
 .ipynb_checkpoints
 normalized_data
-*.jpg
-*.csv
