@@ -12,6 +12,8 @@ folder_list = {
     "Car_License_Plate_Detection.zip": "data/Car_License_Plate_Detection",
     "yolo_plate_dataset.zip": "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano",
     "yolo_plate_ocr_dataset.zip": "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano",
+    "plateless_cars_dataset.zip": "data/plateless_cars",
+    "unlabeled_plates_dataset.zip": "data/unlabeled_plates",
 }
 """ List of downloadable files with their respective save path. """
 

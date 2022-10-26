@@ -369,32 +369,36 @@ class DataNormalizer():
 if __name__ == "__main__":
 
     # ID description:
-    # 0: Plates
-    # 1: Multiple Plates
-    # 2: Plates for NN techniques
-    # 3: Available
-    # 4: OCR
-    # 5: Available
-    # 6: Available
-    # 7: Available
-    # 8: Plates detection for no CNN models
-    # 9: Validation data for both models (Full image with plates characters visible)
+    # 0: Plates (single and multiple).
+    # 1: Available.
+    # 2: Plates for traditional techniques.
+    # 3: Without plates. 
+    # 4: OCR.
+    # 5: Available.
+    # 6: Available.
+    # 7: Available.
+    # 8: Car images with both plates and OCR data for validation of full system.
+    # 9: Available.
 
 
     dataset_paths=[
-        DataSetLocation(1, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
+        # Plates:
+        DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
         DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
         DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
         DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
                         "plate_txt_yolo"),
+        # Without Plates:
+        DataSetLocation(3, "data/plateless_cars/", "images/", "N/A", "N/A"),
+        # OCR:
         DataSetLocation(4, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_ocr_dataset/", "",
                         "", "ocr_txt_yolo")
     ]
     data_normalizer = DataNormalizer(dataset_paths)
     data_normalizer.save_images((480,480),(480,480))
     data_normalizer.generate_plates_csv()
-    data_normalizer.generate_ocr_csv()
     data_normalizer.generate_unique_plates_csv()
+    data_normalizer.generate_ocr_csv()
 
     # (scaled_image, scaled_box) = resize_image(data_normalizer.plates_data_array[10].image_path, 
     #                                      data_normalizer.plates_data_array[10].expected_output, (1000,480))
