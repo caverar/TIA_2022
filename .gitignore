@@ -8,3 +8,6 @@
 *.zip
 .ipynb_checkpoints
 normalized_data
+
+
+models*
