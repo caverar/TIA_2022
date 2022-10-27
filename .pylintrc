@@ -1,4 +1,3 @@
 [FORMAT] 
 max-line-length=120
 generated-members=cv2.*
-generated-members=tensorflow.keras.*

@@ -182,6 +182,9 @@ def resize_image(image_path: str, boxes_data: list[list[float]],
     return (image, scaled_boxes)
 
 def draw_image_with_boxes(image: cv2.Mat, boxes:list[list[float]]) -> None:
+    """
+    Draw the boundary boxes on the image.
+    """
     for box in boxes:
         cv2.rectangle(image, (int(box[1]), int(box[2])), (int(box[3]), int(box[4])), (0,255,255),10)
 
@@ -220,13 +223,14 @@ class DataNormalizer():
                     # Load the annotations
                     if dataset.annotation_format == "plate_xml_voc":
                         expected_output = load_xml_voc(annotation_path, resolution)
-                        if len(expected_output) > 1:
-                            dataset_id = 1
                         self.plates_data_array.append(DataSample(image_path, expected_output, dataset_id))
                     elif dataset.annotation_format == "plate_txt_yolo":
                         expected_output = load_txt_yolo(annotation_path, resolution)
                         if len(expected_output) > 1:
                             dataset_id = 1
+                        self.plates_data_array.append(DataSample(image_path, expected_output, dataset_id))
+                    elif dataset.annotation_format == "untagged_plate":
+                        expected_output = [[0.0,0.0,0.0,0.0,0.0]]
                         self.plates_data_array.append(DataSample(image_path, expected_output, dataset_id))
                     elif dataset.annotation_format == "ocr_txt_yolo":
                         expected_output = load_txt_yolo(annotation_path, resolution)
@@ -244,9 +248,9 @@ class DataNormalizer():
         This function saves all the images rescaled to an specific resolution, resulting in two folders for both plates
         dataset and ocr dataset.
         """
-        self.normalized_data_path = _normalized_data_path
         self.plates_desired_resolution = _plates_desired_resolution
         self.ocr_desired_resolution = _ocr_desired_resolution
+        self.normalized_data_path = _normalized_data_path
 
         current_path = os.getcwd() + "/"
         print(colored("Saving normalized images...","yellow"))
@@ -266,7 +270,6 @@ class DataNormalizer():
                         image_file)
             sample.image_path = current_path + self.normalized_data_path + "/plates_images/" + str(image_name) + ".jpg"
             image_name += 1
-
 
         for sample in self.ocr_data_array:
             (image_file, sample.expected_output) = resize_image(sample.image_path, sample.expected_output,
@@ -293,20 +296,24 @@ class DataNormalizer():
 
         # Create the table.
         output_table = []
-        for sample in  self.plates_data_array:
-            if sample.dataset_id in id_filters:
-                if len(sample.expected_output) == 1:
-                    output_table.append([sample.image_path] + sample.expected_output[0])
+        for sample in self.plates_data_array:
+            if sample.dataset_id in id_filters and len(sample.expected_output) == 1:
+                # change tag for specific dataset id
+                entry = sample.expected_output[0]
+                if sample.dataset_id == 1:
+                    entry = [0,0.0,0.0,0.0,0.0]
+                else:
+                    entry[0] = 100
+                output_table.append([sample.image_path] + entry)
 
         # Write the csv.
         with open(current_path + self.normalized_data_path + "/unique_plates.csv", 'w', encoding="utf-8") as file:
-
             write = csv.writer(file)
             write.writerow(["img_path", "tag", "xmin", "ymin", "xmax", "ymax"])
             write.writerows(output_table)
 
         print(colored("Plates csv finished","green"))
-        
+
     def generate_plates_csv(self, id_filters: tuple[int, ...] = (0, 1))->None:
         """
         This function generates the csv files with the annotations for the plates images, taking a list of  dataset ids
@@ -325,17 +332,20 @@ class DataNormalizer():
         for sample in  self.plates_data_array:
             if sample.dataset_id in id_filters:
                 for entry in sample.expected_output:
+                    # change annotation for specific dataset id
+                    if sample.dataset_id == 1:
+                        entry = [0,0.0,0.0,0.0,0.0]
+                    else:
+                        entry[0] = 100
                     output_table.append([sample.image_path] + entry)
 
         # Write the csv.
         with open(current_path + self.normalized_data_path + "/plates.csv", 'w', encoding="utf-8") as file:
-
             write = csv.writer(file)
             write.writerow(["img_path", "tag", "xmin", "ymin", "xmax", "ymax"])
             write.writerows(output_table)
 
         print(colored("Plates csv finished","green"))
-
 
     def generate_ocr_csv(self, id_filters: tuple[int, ...] = (4,))->None:
         """
@@ -359,27 +369,52 @@ class DataNormalizer():
 
         # Write the csv.
         with open(current_path + self.normalized_data_path + "/ocr.csv", 'w', encoding="utf-8") as file:
-
             write = csv.writer(file)
             write.writerow(["img_path", "tag", "xmin", "ymin", "xmax", "ymax"])
             write.writerows(output_table)
 
         print(colored("OCR csv finished","green"))
 
+    def generate_untagged_csv(self, id_filters: tuple[int, ...] = (2,))->None:
+        """
+        This function generates the csv file with the image paths of the untagged images, taking a list of dataset ids
+        allowed to be included in the the cvs file.
+        """
+
+        print(colored("Generating untagged csv","yellow"))
+        current_path = os.getcwd() + "/"
+
+        # Delete the file if already exist.
+        if os.path.isfile(current_path + self.normalized_data_path + "untagged.csv"):
+            os.remove(current_path + self.normalized_data_path + "untagged.csv")
+
+        # Create the table.
+        output_table = []
+        for sample in  self.plates_data_array:
+            if sample.dataset_id in id_filters:
+                output_table.append([sample.image_path])
+
+        # Write the csv.
+        with open(current_path + self.normalized_data_path + "/untagged.csv", 'w', encoding="utf-8") as file:
+            write = csv.writer(file)
+            write.writerow(["img_path"])
+            write.writerows(output_table)
+
+        print(colored("Untagged csv finished","green"))
+
 if __name__ == "__main__":
 
     # ID description:
     # 0: Plates (single and multiple).
-    # 1: Available.
+    # 1: Without plates.
     # 2: Plates for traditional techniques.
-    # 3: Without plates. 
+    # 3: Available.
     # 4: OCR.
     # 5: Available.
     # 6: Available.
     # 7: Available.
     # 8: Car images with both plates and OCR data for validation of full system.
     # 9: Available.
-
 
     dataset_paths=[
         # Plates:
@@ -389,7 +424,9 @@ if __name__ == "__main__":
         DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
                         "plate_txt_yolo"),
         # Without Plates:
-        DataSetLocation(3, "data/plateless_cars/", "images/", "N/A", "N/A"),
+        DataSetLocation(1, "data/plateless_cars/", "images/", "", "untagged_plate"),
+        # Plates for traditional techniques:
+        DataSetLocation(2, "data/unlabeled_plates/", "images/", "", "untagged_plate"),
         # OCR:
         DataSetLocation(4, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_ocr_dataset/", "",
                         "", "ocr_txt_yolo")
@@ -399,8 +436,13 @@ if __name__ == "__main__":
     data_normalizer.generate_plates_csv()
     data_normalizer.generate_unique_plates_csv()
     data_normalizer.generate_ocr_csv()
+    data_normalizer.generate_untagged_csv()
 
-    # (scaled_image, scaled_box) = resize_image(data_normalizer.plates_data_array[10].image_path, 
-    #                                      data_normalizer.plates_data_array[10].expected_output, (1000,480))
-
-    # draw_image_with_boxes(scaled_image, scaled_box)
+    # Test image
+    # im = cv2.imread("normalized_data/plates_images/8.jpg", cv2.IMREAD_COLOR)
+    # scaled_boxes = [
+    #     [0,34.8,290.4,68.39999999999999,303.6],
+    #     [0,201.6,302.4,237.6,316.8],
+    #     [0,375.59999999999997,276.0,399.59999999999997,289.2],
+    #     [0,462.0,266.4,478.79999999999995,277.2]]
+    # draw_image_with_boxes(im, scaled_boxes)

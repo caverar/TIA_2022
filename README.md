@@ -17,12 +17,13 @@ Installation process in ubuntu:
 ```bash
 sudo apt install software-properties-common -y
 sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
 sudo apt install python3.10
 ```
 
 ### Libraries
 
-if using a default os python version prior to 3.10 install everything with pip3.10 and run scripts with python3.10
+if using a default os python version prior to 3.10 install everything with `pip3.10` and run scripts with `python3.10`.
 
 ```bash
 pip install termcolor
