@@ -86,7 +86,6 @@ def load_txt_yolo(file_path: str, resolution: tuple[int, int])->list[list[float]
     file = np.loadtxt(file_path+".txt")
 
     # Verify the number of elements
-
     if get_number_of_boxes_txt_yolo(file_path) > 1:
         for entry in file:
 
@@ -100,7 +99,6 @@ def load_txt_yolo(file_path: str, resolution: tuple[int, int])->list[list[float]
             ymin = y_1 - (h_size/2)
             xmax = xmin + w_size
             ymax = ymin + h_size
-
 
             # Verify if the data is normalized
             if (0 <= xmin <= 1) and (0 <= xmax <= 1) and (0 <= ymin <= 1) and (0 <= ymax <= 1):
@@ -116,10 +114,10 @@ def load_txt_yolo(file_path: str, resolution: tuple[int, int])->list[list[float]
         y_1    = float(file[2])
         w_size = float(file[3])
         h_size = float(file[4])
-        xmin = x_1 - (w_size/2)
-        ymin = y_1 - (h_size/2)
-        xmax = xmin + w_size
-        ymax = ymin + h_size
+        xmin   = x_1 - (w_size/2)
+        ymin   = y_1 - (h_size/2)
+        xmax   = xmin + w_size
+        ymax   = ymin + h_size
 
         # Verify if the data is normalized
         if (0 <= xmin <= 1) and (0 <= xmax <= 1) and (0 <= ymin <= 1) and (0 <= ymax <= 1):
@@ -162,8 +160,9 @@ def resize_image(image_path: str, boxes_data: list[list[float]],
     image = cv2.resize(image, (new_width, new_height))
     x_padding_offset = int(desired_resolution[0] - new_width - (2*x_padding))
     y_padding_offset = int(desired_resolution[1] - new_height - (2*y_padding))
+    # *Argument minimum establish the values used to pad the image, use "edge" to replicate the last pixel.
     image = np.pad(image, ((y_padding ,y_padding + y_padding_offset), (x_padding,x_padding + x_padding_offset),
-                           (0,0)),"edge" )  # type: ignore
+                           (0,0)),"minimum" )  # type: ignore
     image = cv2.resize(image, (desired_resolution[0],desired_resolution[1]))
 
     # Scale Boxes
@@ -181,6 +180,7 @@ def resize_image(image_path: str, boxes_data: list[list[float]],
 
     return (image, scaled_boxes)
 
+
 def draw_image_with_boxes(image: cv2.Mat, boxes:list[list[float]]) -> None:
     """
     Draw the boundary boxes on the image.
@@ -190,6 +190,7 @@ def draw_image_with_boxes(image: cv2.Mat, boxes:list[list[float]]) -> None:
 
     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), cmap="gray")
     plt.show()
+
 
 class DataNormalizer():
     """_summary_
@@ -224,23 +225,24 @@ class DataNormalizer():
                     if dataset.annotation_format == "plate_xml_voc":
                         expected_output = load_xml_voc(annotation_path, resolution)
                         self.plates_data_array.append(DataSample(image_path, expected_output, dataset_id))
+
                     elif dataset.annotation_format == "plate_txt_yolo":
                         expected_output = load_txt_yolo(annotation_path, resolution)
-                        if len(expected_output) > 1:
-                            dataset_id = 1
                         self.plates_data_array.append(DataSample(image_path, expected_output, dataset_id))
+
                     elif dataset.annotation_format == "untagged_plate":
                         expected_output = [[0.0,0.0,0.0,0.0,0.0]]
                         self.plates_data_array.append(DataSample(image_path, expected_output, dataset_id))
+
                     elif dataset.annotation_format == "ocr_txt_yolo":
                         expected_output = load_txt_yolo(annotation_path, resolution)
                         self.ocr_data_array.append(DataSample(image_path, expected_output, dataset_id))
+
                     else:
                         raise Exception("\"" + dataset.annotation_format +"\" format not supported")
 
-                    # TODO implement load list of specific IDs for specific images
-
         print(colored("Annotations loaded","green"))
+
 
     def save_images(self, _plates_desired_resolution: tuple[int,int], _ocr_desired_resolution: tuple[int,int],
                     _normalized_data_path: str = "normalized_data") -> None:
@@ -281,10 +283,11 @@ class DataNormalizer():
 
         print(colored("Image saving finished","green"))
 
+
     def generate_unique_plates_csv(self, id_filters: tuple[int, ...] = (0, 1))->None:
         """
-        This function generates the csv file with the annotations for the plates images with only one plate, taking a 
-        list of dataset ids filters allowed to be included in the the cvs file.  
+        This function generates the csv file with the annotations for the plates images with only one plate, taking a
+        list of dataset ids filters allowed to be included in the the cvs file.
         """
 
         print(colored("Generating plates csv","yellow"))
@@ -314,10 +317,11 @@ class DataNormalizer():
 
         print(colored("Plates csv finished","green"))
 
+
     def generate_plates_csv(self, id_filters: tuple[int, ...] = (0, 1))->None:
         """
         This function generates the csv files with the annotations for the plates images, taking a list of  dataset ids
-        filters allowed to be included in the the cvs file.  
+        filters allowed to be included in the the cvs file.
         """
 
         print(colored("Generating plates csv","yellow"))
@@ -347,6 +351,7 @@ class DataNormalizer():
 
         print(colored("Plates csv finished","green"))
 
+
     def generate_ocr_csv(self, id_filters: tuple[int, ...] = (4,))->None:
         """
         This function generates the csv files with the annotations for the ocr images, taking a list of  dataset ids
@@ -375,6 +380,7 @@ class DataNormalizer():
 
         print(colored("OCR csv finished","green"))
 
+
     def generate_untagged_csv(self, id_filters: tuple[int, ...] = (2,))->None:
         """
         This function generates the csv file with the image paths of the untagged images, taking a list of dataset ids
@@ -401,6 +407,7 @@ class DataNormalizer():
             write.writerows(output_table)
 
         print(colored("Untagged csv finished","green"))
+
 
 if __name__ == "__main__":
 
@@ -432,7 +439,7 @@ if __name__ == "__main__":
                         "", "ocr_txt_yolo")
     ]
     data_normalizer = DataNormalizer(dataset_paths)
-    data_normalizer.save_images((480,480),(480,480))
+    data_normalizer.save_images((256,256),(256,256))
     data_normalizer.generate_plates_csv()
     data_normalizer.generate_unique_plates_csv()
     data_normalizer.generate_ocr_csv()
