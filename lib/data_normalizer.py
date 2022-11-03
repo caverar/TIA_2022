@@ -188,7 +188,7 @@ def draw_image_with_boxes(image: cv2.Mat, boxes:list[list[float]], border: int =
     for box in boxes:
         cv2.rectangle(image, (int(box[1]), int(box[2])), (int(box[3]), int(box[4])), (0,255,255), border)
 
-    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), cmap="gray")
+    plt.imshow(image, cmap="gray")
     plt.show()
 
 
@@ -424,19 +424,19 @@ if __name__ == "__main__":
     # 9: Available.
 
     dataset_paths=[
-        # # Plates:
-        # DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
-        # DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
-        # DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
-        # # DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
-        # #                 "plate_txt_yolo"),
-        # # # Without Plates:
+        # Plates:
+        DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
+        DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
+        DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
+        # DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
+        #                 "plate_txt_yolo"),
+        # # Without Plates:
         # DataSetLocation(1, "data/plateless_cars/", "images/", "", "untagged_plate"),
         # # Plates for traditional techniques:
         # DataSetLocation(2, "data/unlabeled_plates/", "images/", "", "untagged_plate"),
-        # OCR:
-        DataSetLocation(4, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_ocr_dataset/", "",
-                        "", "ocr_txt_yolo")
+        # # OCR:
+        # DataSetLocation(4, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_ocr_dataset/", "",
+        #                 "", "ocr_txt_yolo")
     ]
     data_normalizer = DataNormalizer(dataset_paths)
     data_normalizer.save_images((256,256),(256,256))
