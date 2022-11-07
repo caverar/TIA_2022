@@ -115,7 +115,7 @@ Esta verificación se asemeja a una compuerta lógica AND dado que retorna un va
 plate_found = bool_h and bool_w and bool_h_w and bool_contours and  bool_white_black
 ```
 
-El código completo se puede encontrar en el archivo [verify_plate_image.py](verify_plate_image.py).
+El código completo se puede encontrar en el archivo [verify_plate_image.py](verify_plate_image.py) y una explicación paso a paso mucho más detallada se encuentra en el archivo Jupyter [verify_plate.ipynb](verify_plate.ipynb)
 
 ### Algoritmo 2: Bordes verticales
 
