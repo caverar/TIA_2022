@@ -13,3 +13,5 @@
 normalized_data
 
 models
+*.png
+*.jpg
