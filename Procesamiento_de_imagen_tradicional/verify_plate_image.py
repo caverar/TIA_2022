@@ -1,4 +1,3 @@
-import numpy as np
 import cv2 
 
 def verify_plate(plate_zone):  

@@ -2,7 +2,7 @@ import numpy as np
 import cv2 
 from verify_plate_image import verify_plate
 
-def test_plate_method_3(img):
+def test_plate_method3(img):
     """
     Detects white zone plate of an image using thresholds and found contours 
 
@@ -31,14 +31,16 @@ def test_plate_method_3(img):
         if (np.isclose(aspect_ratio, ratio, atol=0.7) and (max_w > w > min_w) and
         (max_h > h > min_h)):
             candidates.append(cnt)  
+    try:
+        ys = []
+        for cnt in candidates:
+            x, y, w, h = cv2.boundingRect(cnt)
+            ys.append(y)
+        selected_contour = candidates[np.argmax(ys)]
 
-    ys = []
-    for cnt in candidates:
-        x, y, w, h = cv2.boundingRect(cnt)
-        ys.append(y)
-    selected_contour = candidates[np.argmax(ys)]
+        x, y, w, h = cv2.boundingRect(selected_contour)
+        plate_zone = img[y:y+h,x:x+w]
 
-    x, y, w, h = cv2.boundingRect(selected_contour)
-    plate_zone = img[y:y+h,x:x+w]
-
-    return verify_plate(plate_zone)[0], plate_zone, "METHOD 3\n" + verify_plate(plate_zone)[1]
+        return verify_plate(plate_zone)[0], plate_zone, "METHOD 3\n" + verify_plate(plate_zone)[1]
+    except:
+        return False, img, "METHOD 3\n" + "Not selected contours"

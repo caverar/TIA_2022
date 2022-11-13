@@ -46,7 +46,7 @@ def test_plate_method2(img):
     selected_columns = [i for i, column in enumerate(white_in_columns) if column > min_white_pixels_columns]
 
     try:
-        row_security_factor = 13
+        row_security_factor = 10
         column_security_factor = 3
 
         x1 = min(selected_rows)

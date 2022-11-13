@@ -2,7 +2,7 @@ import numpy as np
 import cv2 
 from verify_plate_image import verify_plate
 
-def test_plate_method_1(img):
+def test_plate_method1(img):
     """
     Detects zone plate of an image using found contours 
 
