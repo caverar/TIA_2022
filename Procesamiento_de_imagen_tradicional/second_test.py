@@ -63,6 +63,6 @@ def test_plate_method2(img):
 
         f, m = verify_plate(plate_zone2)
 
-        return f, plate_zone2, "Method 2\n" + m
+        return f, plate_zone2, "METHOD 2\n" + m
     except:
         return False, img, "No selected rows or columns"

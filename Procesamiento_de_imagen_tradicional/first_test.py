@@ -40,4 +40,4 @@ def test_plate_method_1(img):
     (x2, y2) = (np.max(x), np.max(y))
     plate_zone = img[x1:x2+1, y1:y2+1]
     
-    return verify_plate(plate_zone)[0], plate_zone, "Method 1\n" + verify_plate(plate_zone)[1]
+    return verify_plate(plate_zone)[0], plate_zone, "METHOD 1\n" + verify_plate(plate_zone)[1]
