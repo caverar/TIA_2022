@@ -426,8 +426,8 @@ if __name__ == "__main__":
     dataset_paths=[
         # Plates:
         DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
-        DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
-        DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
+        # DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
+        # DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
         # DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
         #                 "plate_txt_yolo"),
         # # Without Plates:
@@ -439,7 +439,7 @@ if __name__ == "__main__":
         #                 "", "ocr_txt_yolo")
     ]
     data_normalizer = DataNormalizer(dataset_paths)
-    data_normalizer.save_images((256,256),(256,256))
+    data_normalizer.save_images((227,227),(227,227))
     data_normalizer.generate_plates_csv()
     data_normalizer.generate_unique_plates_csv()
     data_normalizer.generate_ocr_csv()
