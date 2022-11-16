@@ -13,3 +13,4 @@
 normalized_data
 
 models*
+*.pt
