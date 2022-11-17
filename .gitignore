@@ -13,4 +13,7 @@
 normalized_data
 
 models*
+
+# YOLO
 *.pt
+\yolo
