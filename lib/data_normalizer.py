@@ -426,11 +426,11 @@ if __name__ == "__main__":
     dataset_paths=[
         # Plates:
         DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
-        # DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
-        # DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
+        DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
+        DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
         # DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
         #                 "plate_txt_yolo"),
-        # # Without Plates:
+        # Without Plates:
         # DataSetLocation(1, "data/plateless_cars/", "images/", "", "untagged_plate"),
         # # Plates for traditional techniques:
         # DataSetLocation(2, "data/unlabeled_plates/", "images/", "", "untagged_plate"),
