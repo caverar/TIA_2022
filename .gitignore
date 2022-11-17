@@ -16,4 +16,4 @@ models*
 
 # YOLO
 *.pt
-\yolo
+/yolo/data
