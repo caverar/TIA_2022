@@ -154,4 +154,4 @@ def read_plate(plate):
     numbers_text = pytesseract.image_to_string(numbers, config=options)
     print(f"Detected numbers: {numbers_text}")
 
-    return letters_text, numbers_text
+    return letters_text.strip(), numbers_text.strip()
