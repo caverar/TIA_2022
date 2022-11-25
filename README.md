@@ -33,10 +33,12 @@ pip install opencv-contrib-python
 pip install pandas
 
 pip install tensorflow
-
 # If using WSL install this TensorFlow version instead, uninstall the last one if already installed
 pip install tensorflow-cpu
 pip install tensorflow-directml-plugin
+
+pip install scikit-image
+pip install pytesseract
 ```
 
 ```bash
