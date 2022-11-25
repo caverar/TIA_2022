@@ -34,9 +34,14 @@ pip install pandas
 
 pip install tensorflow
 
-# If using WSL install this TensorFlow version instead, uninstall the last one if already installed 
+# If using WSL install this TensorFlow version instead, uninstall the last one if already installed
 pip install tensorflow-cpu
 pip install tensorflow-directml-plugin
+```
+
+```bash
+cd models
+wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights
 ```
 
 ## Clone and download datasets
@@ -55,6 +60,7 @@ The datasets were taken from here:
 * [Car_License_Plate_Detection](https://www.kaggle.com/datasets/andrewmvd/car-plate-detection)
 * [Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano](https://github.com/winter2897/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano)
 * [Cars Dataset](http://ai.stanford.edu/~jkrause/cars/car_dataset.html)
+* Dataset tradicional: [Fuente 1](https://www.autocosmos.com.co/auto/usado?pidx=2), [Fuente 2](https://github.com/santifiorino/license_plate_recognizer/tree/master/imgs)
 
 ## Generate normalized images and annotations
 
