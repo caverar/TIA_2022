@@ -1,4 +1,3 @@
-import numpy as np
 import cv2 
 
 def verify_plate(plate_zone):  
@@ -14,15 +13,15 @@ def verify_plate(plate_zone):
     bool_w = w_plate > min_width
     
     height_width_relation = (h_plate / w_plate) * 100
-    bool_h_w = height_width_relation > 20 
+    bool_h_w = height_width_relation > 18
     
     plate_contours = cv2.findContours(plate_zone_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[0]  
-    bool_contours = len(plate_contours) > 10
+    bool_contours = len(plate_contours) >= 8
     
     hist = cv2.calcHist([plate_zone_binary],[0],None,[256],[0,256])
     white_pixels = hist[-1]
     black_pixels = hist[0]
-    black_white_factor = 0
+    black_white_factor = -2000
     
     bool_white_black = (white_pixels - black_pixels) > black_white_factor
     

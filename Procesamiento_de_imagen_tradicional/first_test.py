@@ -2,7 +2,7 @@ import numpy as np
 import cv2 
 from verify_plate_image import verify_plate
 
-def test_plate_method_1(img):
+def test_plate_method1(img):
     """
     Detects zone plate of an image using found contours 
 
@@ -40,4 +40,4 @@ def test_plate_method_1(img):
     (x2, y2) = (np.max(x), np.max(y))
     plate_zone = img[x1:x2+1, y1:y2+1]
     
-    return verify_plate(plate_zone)[0], plate_zone, "Method 1\n" + verify_plate(plate_zone)[1]
+    return verify_plate(plate_zone)[0], plate_zone, "METHOD 1\n" + verify_plate(plate_zone)[1]
