@@ -18,3 +18,5 @@ models
 
 logs
 yolo
+
+*.pt
