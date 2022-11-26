@@ -35,7 +35,8 @@ if __name__ == "__main__":
     false_positive = 0
     false_negative = 0
 
-    print("Every time that an image is shown, press any key to continue and response the question in the terminal.")
+    input("Every time that an image is shown, press any key to continue and response the question in the terminal, " +
+          "press enter to start")
 
     i = 0
     for ind in samples.index:
