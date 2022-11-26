@@ -408,10 +408,11 @@ class DataNormalizer():
 
         print(colored("Untagged csv finished","green"))
 
-def template_generate_data():
-    """
-    This function is the tampletw for future functions that requires specific data generation.
-    """
+    def generate_validation_csv(self,id_filters: tuple[int, ...]=(2,0) ) ->None:
+        pass
+
+if __name__ == "__main__":
+
     # ID description:
     # 0: Plates (single and multiple).
     # 1: Without plates.
@@ -454,70 +455,3 @@ def template_generate_data():
     #     [0,375.59999999999997,276.0,399.59999999999997,289.2],
     #     [0,462.0,266.4,478.79999999999995,277.2]]
     # draw_image_with_boxes(im, scaled_boxes)
-
-
-def generate_cnn_data():
-    """
-    This function generates the normalized data to be used in the cnn test models
-    """
-    dataset_paths=[
-        # Plates:
-        DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
-        DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
-        DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
-        DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
-                        "plate_txt_yolo"),
-        # Without Plates:
-        # DataSetLocation(1, "data/plateless_cars/", "images/", "", "untagged_plate"),
-        # # Plates for traditional techniques:
-        # DataSetLocation(2, "data/unlabeled_plates/", "images/", "", "untagged_plate"),
-        # # OCR:
-        # DataSetLocation(4, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_ocr_dataset/", "",
-        #                 "", "ocr_txt_yolo")
-    ]
-    data_normalizer = DataNormalizer(dataset_paths)
-    data_normalizer.save_images((227,227),(227,227))
-    data_normalizer.generate_unique_plates_csv()
-
-def generate_yolo_data():
-    """
-    This function generates the normalized data to be used in yolov5 model
-    """
-    dataset_paths=[
-        # Plates:
-        DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
-        DataSetLocation(0, "data/license-plate-dataset/dataset/train/", "images/", "annots/", "plate_xml_voc"),
-        DataSetLocation(0, "data/license-plate-dataset/dataset/valid/", "images/", "annots/", "plate_xml_voc"),
-        DataSetLocation(0, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_dataset/", "", "",
-                        "plate_txt_yolo"),
-        # Without Plates:
-        # DataSetLocation(1, "data/plateless_cars/", "images/", "", "untagged_plate"),
-        # # Plates for traditional techniques:
-        # DataSetLocation(2, "data/unlabeled_plates/", "images/", "", "untagged_plate"),
-        # # OCR:
-        # DataSetLocation(4, "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/yolo_plate_ocr_dataset/", "",
-        #                 "", "ocr_txt_yolo")
-    ]
-    data_normalizer = DataNormalizer(dataset_paths)
-    data_normalizer.save_images((227,227),(227,227))
-    data_normalizer.generate_unique_plates_csv()
-
-def generate_validation_data():
-    """
-    This function generates the normalized data to be used for validation in the traditional techniques
-    """
-    dataset_paths=[
-        # With Plates:
-        DataSetLocation(0, "data/Car_License_Plate_Detection/", "images/", "annotations/", "plate_xml_voc"),
-        # Without Plates:
-        DataSetLocation(1, "data/plateless_cars/", "images/", "", "untagged_plate"),
-
-    ]
-    data_normalizer = DataNormalizer(dataset_paths)
-    data_normalizer.save_images((500,500),(500,500))
-    data_normalizer.generate_unique_plates_csv()
-
-
-if __name__ == "__main__":
-
-    generate_validation_data()

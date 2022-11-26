@@ -14,7 +14,8 @@ folder_list = {
     "yolo_plate_ocr_dataset.zip": "data/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano",
     "plateless_cars_dataset.zip": "data/plateless_cars",
     "unlabeled_plates_dataset.zip": "data/unlabeled_plates",
-    "Dataset_Tradicional.zip": "data/Dataset_Tradicional"
+    "Dataset_Tradicional.zip": "data/Dataset_Tradicional",
+    "plate_detector.zip": "models",
 }
 """ List of downloadable files with their respective save path. """
 
@@ -64,6 +65,6 @@ def main():
             os.remove(current_path+file)
 
     print(colored("Done!","green"))
-    
+
 if __name__ == "__main__":
     main()
