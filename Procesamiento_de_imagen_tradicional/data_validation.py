@@ -9,8 +9,7 @@ from plate_detector import detect_plate
 if __name__ == "__main__":
 
 
-
-    # Fet directory of the current file
+    # Get directory of the current file
     path = os.path.dirname(os.path.abspath(__file__))
 
     # Load the cvs file
@@ -75,10 +74,6 @@ if __name__ == "__main__":
         elif not is_plated_label and not is_plated_prediction:
             true_negative += 1
 
-        # cv2.imshow("input_image", input_image)
-        # cv2.waitKey(0)
-        # x = input()
-
 
     # Calculate accuracy
     accuracy = (true_positive + true_negative) / (true_positive + true_negative + false_positive + false_negative)
@@ -90,6 +85,7 @@ if __name__ == "__main__":
     f1_score = 2 * (recall * precision) / (recall + precision)
 
     # Print results
+    print("------------------------------------------")
     print("True positive: ", true_positive)
     print("True negative: ", true_negative)
     print("False positive: ", false_positive)
@@ -112,5 +108,3 @@ if __name__ == "__main__":
         f.write(f"Recall: {recall}\n")
         f.write(f"Precision: {precision}\n")
         f.write(f"F1 score: {f1_score}\n")
-
-
