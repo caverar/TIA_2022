@@ -16,6 +16,7 @@ folder_list = {
     "unlabeled_plates_dataset.zip": "data/unlabeled_plates",
     "Dataset_Tradicional.zip": "data/Dataset_Tradicional",
     "plate_detector.zip": "models",
+    "ResNet50Box_01.zip": "models"
 }
 """ List of downloadable files with their respective save path. """
 
