@@ -1,0 +1,9 @@
+train: ./../data/yolo/images/train/
+val: ./../data/yolo/images/val/
+
+
+# Classes
+nc: 1  # number of classes
+names: [ "plate" ]  # class names
+
+
