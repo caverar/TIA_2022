@@ -1,5 +1,5 @@
-train: ./../data/yolo/images/train/
-val: ./../data/yolo/images/val/
+train: ../../data/yolo/images/train/
+val: ../../data/yolo/images/val/
 
 
 # Classes
