@@ -1,24 +1,20 @@
+# Python trash files
 *__pycache__*
 *.pyc
 *.py[cod]
 *$py.class
 
-/data/*
+# Datasets
+data/*
+*.png
+*.jpg
+logs
 
+# Normalization residuals
 *.zip
 .ipynb_checkpoints
 normalized_data
 
-models
-*.png
-*.jpg
-
-logs
-yolo
-
+# Models
 *.pt
-models*
-
-# YOLO
-*.pt
-/yolo/data
+models/*
