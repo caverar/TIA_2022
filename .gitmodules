@@ -5,3 +5,6 @@
 	path = lib/gdrivedl
 	url = https://github.com/matthuisman/gdrivedl.git
 	ignore = all
+[submodule "lib/yolov5"]
+	path = lib/yolov5
+	url = https://github.com/ultralytics/yolov5
